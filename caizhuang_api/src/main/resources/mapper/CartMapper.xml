@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.CartMapper">
+  <resultMap id="BaseResultMap" type="com.susu.entity.Cart">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="size" jdbcType="VARCHAR" property="size" />
+  </resultMap>
+
+  <resultMap id="CartResultMap" type="com.susu.entity.Cart">
+    <id column="cartId" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="size" jdbcType="VARCHAR" property="size" />
+    <!-- 指定联合查询出的部门字段的封装 -->
+    <collection property="goods" ofType="com.susu.entity.Goods" >
+      <id column="id" jdbcType="INTEGER" property="id" />
+      <result column="goodsType_id" jdbcType="INTEGER" property="goodstypeId" />
+      <result column="goodsName" jdbcType="VARCHAR" property="goodsname" />
+      <result column="producing_area" jdbcType="VARCHAR" property="producingArea" />
+      <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+      <result column="price" jdbcType="DECIMAL" property="price" />
+      <result column="sell_price" jdbcType="DECIMAL" property="sellPrice" />
+      <result column="stock" jdbcType="INTEGER" property="stock" />
+      <result column="picture" jdbcType="VARCHAR" property="picture" />
+      <result column="discount" jdbcType="INTEGER" property="discount" />
+      <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+      <result column="onSale" jdbcType="INTEGER" property="onsale" />
+      <result column="remark" jdbcType="INTEGER" property="remark" />
+      <result column="soldNum" jdbcType="INTEGER" property="soldNum" />
+      <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    </collection>
+<!--  一对一查询时候使用  <association property="goods" column="goods_id" javaType="com.susu.entity.Goods"></association>-->
+  </resultMap>
+
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, user_id, goods_id,quantity,size
+  </sql>
+  <sql id="withGoods_Column_List">
+    c.id cartId, c.user_id, c.goods_id,c.quantity,c.size,g.*
+  </sql>
+  <sql id="withPrice_Column_List">
+    c.id cartId, c.user_id, c.goods_id,c.quantity,c.size ,g.sell_price
+  </sql>
+
+  <!--  getCartListByIds 通过id查询购物车的商品，两表查询，根据商品id进行连接 并把得到的数据放进数据库中-->
+  <!-- SELECT c.* ,g.sell_price FROM tb_cart c LEFT JOIN tb_goods g ON c.goods_id=g.id WHERE c.id IN(10,11) -->
+  <select id="getCartListByIds" resultMap="CartResultMap">
+    select
+    <include refid="withPrice_Column_List" />
+    FROM tb_cart c LEFT JOIN tb_goods g ON c.goods_id=g.id
+    where c.id in
+    <foreach item="ids" collection="array" open="(" separator="," close=")">
+      #{ids}
+    </foreach>
+  </select>
+
+
+
+  <select id="getCartByUidAndPid" parameterType="com.susu.entity.Cart" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_cart
+    where user_id = #{userId,jdbcType=INTEGER} and goods_id=#{goodsId,jdbcType=INTEGER}
+    and size=#{size,jdbcType=VARCHAR}
+  </select>
+
+<!--  update-->
+  <update id="update" parameterType="com.susu.entity.Cart">
+    update tb_cart
+    set quantity = #{quantity,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+<!--  showCart 查看购物车页面 多表查询 ，连接购物车表和商品表 ，通过商品Id连接-->
+<!--  SELECT  c.*,g.* FROM tb_cart c LEFT JOIN tb_goods g ON c.goods_id= g.id WHERE c.user_id=1-->
+  <select id="showCart" parameterType="com.susu.entity.Cart" resultMap="CartResultMap">
+    select
+    <include refid="withGoods_Column_List" />
+    FROM tb_cart c LEFT JOIN tb_goods g ON c.goods_id= g.id
+    where user_id = #{userId,jdbcType=INTEGER}
+    order by cartId desc
+  </select>
+
+<!--  clearCart-->
+  <delete id="clearCart" parameterType="java.lang.Integer">
+    delete from tb_cart
+    where user_id = #{userId,jdbcType=INTEGER}
+  </delete>
+
+  <!--批量删除-->
+  <delete id="deleteByBatch" >
+    delete from tb_cart
+    where id in
+    <foreach item="ids" collection="array" open="(" separator="," close=")">
+      #{ids}
+    </foreach>
+  </delete>
+
+
+
+  <select id="selectByExample" parameterType="com.susu.entity.CartExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_cart
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_cart
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_cart
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.susu.entity.CartExample">
+    delete from tb_cart
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.susu.entity.Cart">
+    insert into tb_cart (user_id, goods_id,quantity,size)
+    values ( #{userId,jdbcType=INTEGER}, #{goodsId,jdbcType=INTEGER},
+            #{quantity,jdbcType=INTEGER},#{size,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.susu.entity.Cart">
+    insert into tb_cart
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="goodsId != null">
+        goods_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null">
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.susu.entity.CartExample" resultType="java.lang.Long">
+    select count(*) from tb_cart
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_cart
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodsId != null">
+        goods_id = #{record.goodsId,jdbcType=INTEGER},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_cart
+    set id = #{record.id,jdbcType=INTEGER},
+      user_id = #{record.userId,jdbcType=INTEGER},
+      goods_id = #{record.goodsId,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.susu.entity.Cart">
+    update tb_cart
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null">
+        goods_id = #{goodsId,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.susu.entity.Cart">
+    update tb_cart
+    set user_id = #{userId,jdbcType=INTEGER},
+      goods_id = #{goodsId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

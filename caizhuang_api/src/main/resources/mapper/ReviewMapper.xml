@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.ReviewMapper">
+  <resultMap id="BaseResultMap" type="com.susu.entity.Review">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="goods_size" jdbcType="VARCHAR" property="goodsSize" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="orderItem_id" jdbcType="INTEGER" property="orderitemId" />
+    <result column="degree" jdbcType="CHAR" property="degree" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="goodscore" jdbcType="CHAR" property="goodscore" />
+    <result column="shopscore" jdbcType="CHAR" property="shopscore" />
+    <result column="logisticscore" jdbcType="CHAR" property="logisticscore" />
+    <result column="img" jdbcType="VARCHAR" property="img" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="reply_content" jdbcType="VARCHAR" property="replyContent" />
+    <result column="reply_time" jdbcType="TIMESTAMP" property="replyTime" />
+  </resultMap>
+
+
+  <!--  关联查询-->
+  <resultMap id="WithGoodsResultMap" type="com.susu.entity.Review">
+    <id column="rid" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="goods_size" jdbcType="VARCHAR" property="goodsSize" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="orderItem_id" jdbcType="INTEGER" property="orderitemId" />
+    <result column="degree" jdbcType="CHAR" property="degree" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="goodscore" jdbcType="CHAR" property="goodscore" />
+    <result column="shopscore" jdbcType="CHAR" property="shopscore" />
+    <result column="logisticscore" jdbcType="CHAR" property="logisticscore" />
+    <result column="img" jdbcType="VARCHAR" property="img" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="reply_content" jdbcType="VARCHAR" property="replyContent" />
+    <result column="reply_time" jdbcType="TIMESTAMP" property="replyTime" />
+    <!-- 关联对象 -->
+    <association property="goods" javaType="com.susu.entity.Goods">
+      <id column="id" jdbcType="INTEGER" property="id" />
+      <result column="goodsType_id" jdbcType="INTEGER" property="goodstypeId" />
+      <result column="goodsName" jdbcType="VARCHAR" property="goodsname" />
+      <result column="producing_area" jdbcType="VARCHAR" property="producingArea" />
+      <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+      <result column="price" jdbcType="DECIMAL" property="price" />
+      <result column="sell_price" jdbcType="DECIMAL" property="sellPrice" />
+      <result column="stock" jdbcType="INTEGER" property="stock" />
+      <result column="picture" jdbcType="VARCHAR" property="picture" />
+      <result column="discount" jdbcType="INTEGER" property="discount" />
+      <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+      <result column="onSale" jdbcType="INTEGER" property="onsale" />
+      <result column="remark" jdbcType="INTEGER" property="remark" />
+      <result column="soldNum" jdbcType="INTEGER" property="soldNum" />
+      <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    </association>
+
+  </resultMap>
+
+  <!--  关联查询-->
+  <resultMap id="WithUserResultMap" type="com.susu.entity.Review">
+    <id column="rid" jdbcType="INTEGER" property="id" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="goods_id" jdbcType="INTEGER" property="goodsId" />
+    <result column="goods_size" jdbcType="VARCHAR" property="goodsSize" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="orderItem_id" jdbcType="INTEGER" property="orderitemId" />
+    <result column="degree" jdbcType="CHAR" property="degree" />
+    <result column="content" jdbcType="VARCHAR" property="content" />
+    <result column="goodscore" jdbcType="CHAR" property="goodscore" />
+    <result column="shopscore" jdbcType="CHAR" property="shopscore" />
+    <result column="logisticscore" jdbcType="CHAR" property="logisticscore" />
+    <result column="img" jdbcType="VARCHAR" property="img" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="reply_content" jdbcType="VARCHAR" property="replyContent" />
+    <result column="reply_time" jdbcType="TIMESTAMP" property="replyTime" />
+    <!-- 关联对象 -->
+    <association property="customer" javaType="com.susu.entity.Customer">
+      <id column="id" jdbcType="INTEGER" property="id" />
+      <result column="user_name" jdbcType="VARCHAR" property="userName" />
+      <result column="userImg" jdbcType="VARCHAR" property="img" />
+    </association>
+
+  </resultMap>
+
+
+
+  <sql id="Base_Column_List">
+    id, user_id, goods_id, goods_size,order_id, orderItem_id, degree, content, goodscore, shopscore,
+    logisticscore, img, create_time, reply_content, reply_time
+  </sql>
+  <sql id="WithGoods_List">
+    r.id rid, user_id, goods_id, goods_size, order_id,orderItem_id, degree, content, goodscore, shopscore,
+    logisticscore, img, r.create_time, reply_content, reply_time,g.*
+  </sql>
+  <sql id="WithUser_List">
+    r.id rid, user_id, goods_id, goods_size,order_id, orderItem_id, degree, content, goodscore, shopscore,
+    logisticscore, r.img, r.create_time, reply_content, reply_time,c.user_name,c.img userImg
+  </sql>
+  <!--insertReview  插入订单  -->
+  <insert id="insert" parameterType="com.susu.entity.Review">
+    insert into tb_review (user_id, goods_id,
+                           goods_size,order_id, orderItem_id, degree,
+                           content, goodscore, shopscore,
+                           logisticscore, img, create_time,
+                           reply_content, reply_time)
+    values (#{userId,jdbcType=INTEGER}, #{goodsId,jdbcType=INTEGER},
+            #{goodsSize,jdbcType=VARCHAR}, #{orderId,jdbcType=VARCHAR},#{orderitemId,jdbcType=INTEGER}, #{degree,jdbcType=CHAR},
+            #{content,jdbcType=VARCHAR}, #{goodscore,jdbcType=CHAR}, #{shopscore,jdbcType=CHAR},
+            #{logisticscore,jdbcType=CHAR}, #{img,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+            #{replyContent,jdbcType=VARCHAR}, #{replyTime,jdbcType=TIMESTAMP})
+  </insert>
+  <!--  showReview  分页 根据用户ID 来查询-->
+<!--  SELECT r.* ,g.description,g.sell_price FROM tb_review r LEFT JOIN tb_goods g ON r.goods_id=g.id WHERE user_id=1 AND degree=0-->
+  <select id="showReview"  resultMap="WithGoodsResultMap">
+    select
+    <include refid="WithGoods_List" />
+    FROM tb_review r LEFT JOIN tb_goods g ON r.goods_id=g.id
+    where user_id=#{userId,jdbcType=INTEGER}
+    <if test="degree  !=null and degree  !='  ' or 0 == degree ">
+      and r.degree = #{degree,jdbcType=CHAR}
+    </if>
+    order by r.create_time desc
+  </select>
+<!--更新 有选择的更新-->
+  <update id="updateByPrimaryKeySelective" parameterType="com.susu.entity.Review">
+    update tb_review
+    <set>
+      <if test="degree != null">
+        degree = #{degree,jdbcType=CHAR},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="goodscore != null">
+        goodscore = #{goodscore,jdbcType=CHAR},
+      </if>
+      <if test="shopscore != null">
+        shopscore = #{shopscore,jdbcType=CHAR},
+      </if>
+      <if test="logisticscore != null">
+        logisticscore = #{logisticscore,jdbcType=CHAR},
+      </if>
+      <if test="img != null">
+        img = #{img,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="replyContent != null">
+        reply_content = #{replyContent,jdbcType=VARCHAR},
+      </if>
+      <if test="replyTime != null">
+        reply_time = #{replyTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+<!--  deleteByBatch   删除-->
+  <delete id="deleteByBatch" >
+    delete from tb_review
+    where id in
+    <foreach item="ids" collection="array" open="(" separator="," close=")">
+      #{ids}
+    </foreach>
+  </delete>
+
+<!--  getGoodsReview   商品详情页的评价信息-->
+<!--  SELECT r.*,c.user_name,c.img FROM tb_review r , tb_customer c WHERE  r.user_id=c.id AND goods_id=8-->
+  <select id="getGoodsReview"  resultMap="WithUserResultMap">
+    select
+    <include refid="WithUser_List" />
+    FROM tb_review r , tb_customer c WHERE  r.user_id=c.id AND
+    goods_id=#{goodsId,jdbcType=INTEGER}
+    <if test="degree  !=null and degree  !='  ' or 0 == degree ">
+      and r.degree = #{degree,jdbcType=CHAR}
+    </if>
+
+  </select>
+
+<!-- showBgReview   后台查看评价 显示 评价ID，明细ID，商品名称，购买尺寸，好评等级，-->
+<!--  SELECT r.* ,g.* FROM tb_review r LEFT JOIN tb_goods g ON r.goods_id=g.id-->
+  <select id="showBgReview"  resultMap="WithGoodsResultMap">
+    select
+    <include refid="WithGoods_List" />
+    FROM tb_review r LEFT JOIN tb_goods g ON r.goods_id=g.id
+    where 1=1
+    <if test="degree  !=null and degree  !='  ' or 0 == degree ">
+      and r.degree = #{degree,jdbcType=CHAR}
+    </if>
+    <if test="isReply  !=null and degree  !='  ' and 0 == isReply ">
+      and reply_content IS NULL
+    </if>
+    <if test="isReply  !=null and degree  !='  ' and 1 == isReply ">
+      and reply_content IS NOT NULL
+    </if>
+    <if test="orderId  !=null and orderId  !='  ' ">
+      and r.order_id=#{orderId,jdbcType=VARCHAR}
+    </if>
+    order by r.create_time desc
+  </select>
+
+<!--  toBgDetail  后台查看评价详情 ，需要跟用户表联合查询-->
+  <select id="toBgDetail"  resultMap="WithUserResultMap">
+    select
+    <include refid="WithUser_List" />
+    FROM tb_review r LEFT JOIN tb_customer c ON r.user_id=c.id
+    where r.id=#{id,jdbcType=INTEGER}
+  </select>
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_review
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_review
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <delete id="deleteUserReviewById" parameterType="integer">
+    delete from tb_review
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.susu.entity.Review">
+    insert into tb_review
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="goodsId != null">
+        goods_id,
+      </if>
+      <if test="goodsSize != null">
+        goods_size,
+      </if>
+      <if test="orderitemId != null">
+        orderItem_id,
+      </if>
+      <if test="degree != null">
+        degree,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+      <if test="goodscore != null">
+        goodscore,
+      </if>
+      <if test="shopscore != null">
+        shopscore,
+      </if>
+      <if test="logisticscore != null">
+        logisticscore,
+      </if>
+      <if test="img != null">
+        img,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="replyContent != null">
+        reply_content,
+      </if>
+      <if test="replyTime != null">
+        reply_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsId != null">
+        #{goodsId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsSize != null">
+        #{goodsSize,jdbcType=VARCHAR},
+      </if>
+      <if test="orderitemId != null">
+        #{orderitemId,jdbcType=INTEGER},
+      </if>
+      <if test="degree != null">
+        #{degree,jdbcType=CHAR},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=VARCHAR},
+      </if>
+      <if test="goodscore != null">
+        #{goodscore,jdbcType=CHAR},
+      </if>
+      <if test="shopscore != null">
+        #{shopscore,jdbcType=CHAR},
+      </if>
+      <if test="logisticscore != null">
+        #{logisticscore,jdbcType=CHAR},
+      </if>
+      <if test="img != null">
+        #{img,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="replyContent != null">
+        #{replyContent,jdbcType=VARCHAR},
+      </if>
+      <if test="replyTime != null">
+        #{replyTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.susu.entity.Review">
+    update tb_review
+    set
+      degree = #{degree,jdbcType=CHAR},
+      content = #{content,jdbcType=VARCHAR},
+      goodscore = #{goodscore,jdbcType=CHAR},
+      shopscore = #{shopscore,jdbcType=CHAR},
+      logisticscore = #{logisticscore,jdbcType=CHAR},
+      img = #{img,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      reply_content = #{replyContent,jdbcType=VARCHAR},
+      reply_time = #{replyTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+</mapper>

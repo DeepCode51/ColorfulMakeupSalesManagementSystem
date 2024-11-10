@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.AnnouncementMapper">
+    <insert id="insert" parameterType="com.susu.entity.Announcement">
+        insert into tb_announcement (title,content)
+         values (#{title,jdbcType=VARCHAR},#{content,jdbcType=VARCHAR});
+    </insert>
+
+    <select id="showAnnouncement" resultType="com.susu.entity.Announcement">
+        select *
+        from tb_announcement
+        order by id desc limit 1
+    </select>
+</mapper>

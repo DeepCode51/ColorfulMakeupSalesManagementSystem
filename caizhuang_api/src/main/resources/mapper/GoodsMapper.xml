@@ -1,0 +1,517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.GoodsMapper">
+  <resultMap id="BaseResultMap" type="com.susu.entity.Goods">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="goodsType_id" jdbcType="INTEGER" property="goodstypeId" />
+    <result column="goodsName" jdbcType="VARCHAR" property="goodsname" />
+    <result column="producing_area" jdbcType="VARCHAR" property="producingArea" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="price" jdbcType="DECIMAL" property="price" />
+    <result column="sell_price" jdbcType="DECIMAL" property="sellPrice" />
+    <result column="stock" jdbcType="INTEGER" property="stock" />
+    <result column="picture" jdbcType="VARCHAR" property="picture" />
+    <result column="discount" jdbcType="INTEGER" property="discount" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="onSale" jdbcType="INTEGER" property="onsale" />
+    <result column="remark" jdbcType="INTEGER" property="remark" />
+    <result column="soldNum" jdbcType="INTEGER" property="soldNum" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.susu.entity.Goods">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+  </resultMap>
+
+  <resultMap extends="BaseResultMap" id="ResultMapWithType" type="com.susu.entity.Goods">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    <!-- 关联对象 -->
+    <association property="goodsType" javaType="com.susu.entity.GoodsType">
+      <id column="typeId" jdbcType="INTEGER" property="id" />
+      <result column="goodsTypeName" jdbcType="VARCHAR" property="goodstypename" />
+      <result column="typeDescription" jdbcType="VARCHAR" property="description" />
+    </association>
+  </resultMap>
+
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, goodsType_id, goodsName, producing_area, create_time, price, sell_price, stock, 
+    picture, discount, update_time, onSale,remark,soldNum
+  </sql>
+  <sql id="Blob_Column_List">
+    description
+  </sql>
+  <sql id="WithType_List">
+    g.id, goodsType_id, goodsName, producing_area, create_time, price, sell_price, stock,
+    picture, discount, update_time, onSale,remark,soldNum,g.description,t.goodsTypeName
+  </sql>
+
+
+  <!--  updateRemrk  更改评价数量-->
+  <update id="updateRemrk" parameterType="com.susu.entity.Goods">
+    update tb_goods
+    set remark =remark+1
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--更新商品 updateProduct -->
+  <update id="updateProduct" parameterType="com.susu.entity.Goods">
+    update tb_goods
+    set goodsType_id = #{goodstypeId,jdbcType=INTEGER},
+        goodsName = #{goodsname,jdbcType=VARCHAR},
+        producing_area = #{producingArea,jdbcType=VARCHAR},
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+        price = #{price,jdbcType=DECIMAL},
+        sell_price = #{sellPrice,jdbcType=DECIMAL},
+        stock = #{stock,jdbcType=INTEGER},
+        picture = #{picture,jdbcType=VARCHAR},
+        discount = #{discount,jdbcType=INTEGER},
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        onSale = #{onsale,jdbcType=INTEGER},
+        description = #{description,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!--更新商品-->
+
+  <!--新增商品-->
+  <insert id="addProduct" parameterType="com.susu.entity.Goods">
+    insert into tb_goods ( goodsType_id, goodsName,
+                          producing_area, create_time, price,
+                          sell_price, stock, picture,
+                          discount, update_time, onSale,
+                          description)
+    values (#{goodstypeId,jdbcType=INTEGER}, #{goodsname,jdbcType=VARCHAR},
+            #{producingArea,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{price,jdbcType=DECIMAL},
+            #{sellPrice,jdbcType=DECIMAL}, #{stock,jdbcType=INTEGER}, #{picture,jdbcType=VARCHAR},
+            #{discount,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, #{onsale,jdbcType=INTEGER},
+            #{description,jdbcType=LONGVARCHAR})
+  </insert>
+  <!--新增商品-->
+
+
+  <!--修改上架-->
+  <update id="updateSale" parameterType="com.susu.entity.Goods">
+    update tb_goods
+    set onSale = #{onsale,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--  后台getSearch模糊查询-->
+  <select id="getSearch"  resultMap="ResultMapWithType">
+      select
+      <include refid="WithType_List" />
+      from tb_goods g left join tb_goods_type t on g.goodsType_id=t.id where 1=1
+      <if test="searchname  !=null and searchname  !='  ' ">
+        and goodsName like "%"#{searchname}"%"
+      </if>
+      <if test="typeId  !=null and typeId  !='  ' ">
+        and goodsType_id = #{typeId}
+      </if>
+      <if test="hasSale !=null and hasSale!='  ' or 0 == hasSale ">
+        and onSale = #{hasSale}
+      </if>
+      order by create_time desc
+
+  </select>
+
+
+
+
+  <!--  前台getSearch模糊查询-->
+  <select id="getsearchGoods"  resultMap="ResultMapWithBLOBs">
+    select * from tb_goods  where 1=1
+    and onSale=1
+    <if test="searchname  !=null and searchname  !='  ' ">
+      and goodsName like "%"#{searchname}"%"
+    </if>
+    <if test="typeId  !=null and typeId  !='  ' ">
+      and goodsType_id = #{typeId}
+    </if>
+    <if test="maxPrice !=null and maxPrice!='  ' or 0 == maxPrice ">
+      and sell_price <![CDATA[<]]> #{maxPrice}
+    </if>
+    <if test="minPrice !=null and minPrice!='  ' or 0 == minPrice ">
+      and sell_price <![CDATA[>]]>  #{minPrice}
+    </if>
+    order by create_time desc
+  </select>
+
+
+<!--通过商品Id查询商品-->
+
+  <select id="getListByType"  resultMap="ResultMapWithBLOBs">
+    select * from tb_goods
+    where goodsType_id=#{goodstypeId}
+  </select>
+
+
+  <!--批量删除-->
+  <delete id="deleteByBatch" >
+    delete from tb_goods
+    where id in
+    <foreach item="ids" collection="array" open="(" separator="," close=")">
+      #{ids}
+    </foreach>
+  </delete>
+
+<!--查询以上架的商品。根据销售量排行，前40个-->
+  <select id="selectByExampleWithBLOBs" parameterType="com.susu.entity.GoodsExample" resultMap="ResultMapWithBLOBs">
+    select * from tb_goods where onsale=1
+    ORDER BY soldNum DESC;
+--     order by create_time desc   LIMIT 40
+  </select>
+
+<!--  getCount  -->
+  <select id="getCount"  resultType="java.lang.Integer">
+    select count(*) from tb_goods
+    where goodsType_id=#{typeId}
+  </select>
+
+  <select id="selectByExample" parameterType="com.susu.entity.GoodsExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from tb_goods
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_goods
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.susu.entity.GoodsExample">
+    delete from tb_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.susu.entity.Goods">
+    insert into tb_goods (id, goodsType_id, goodsName, 
+      producing_area, create_time, price, 
+      sell_price, stock, picture, 
+      discount, update_time, onSale, 
+      description)
+    values (#{id,jdbcType=INTEGER}, #{goodstypeId,jdbcType=INTEGER}, #{goodsname,jdbcType=VARCHAR}, 
+      #{producingArea,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{price,jdbcType=DECIMAL}, 
+      #{sellPrice,jdbcType=DECIMAL}, #{stock,jdbcType=INTEGER}, #{picture,jdbcType=VARCHAR}, 
+      #{discount,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}, #{onsale,jdbcType=INTEGER}, 
+      #{description,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.susu.entity.Goods">
+    insert into tb_goods
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="goodstypeId != null">
+        goodsType_id,
+      </if>
+      <if test="goodsname != null">
+        goodsName,
+      </if>
+      <if test="producingArea != null">
+        producing_area,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="price != null">
+        price,
+      </if>
+      <if test="sellPrice != null">
+        sell_price,
+      </if>
+      <if test="stock != null">
+        stock,
+      </if>
+      <if test="picture != null">
+        picture,
+      </if>
+      <if test="discount != null">
+        discount,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="onsale != null">
+        onSale,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="goodstypeId != null">
+        #{goodstypeId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsname != null">
+        #{goodsname,jdbcType=VARCHAR},
+      </if>
+      <if test="producingArea != null">
+        #{producingArea,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="price != null">
+        #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="sellPrice != null">
+        #{sellPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="stock != null">
+        #{stock,jdbcType=INTEGER},
+      </if>
+      <if test="picture != null">
+        #{picture,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null">
+        #{discount,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onsale != null">
+        #{onsale,jdbcType=INTEGER},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.susu.entity.GoodsExample" resultType="java.lang.Long">
+    select count(*) from tb_goods
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_goods
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodstypeId != null">
+        goodsType_id = #{record.goodstypeId,jdbcType=INTEGER},
+      </if>
+      <if test="record.goodsname != null">
+        goodsName = #{record.goodsname,jdbcType=VARCHAR},
+      </if>
+      <if test="record.producingArea != null">
+        producing_area = #{record.producingArea,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.price != null">
+        price = #{record.price,jdbcType=DECIMAL},
+      </if>
+      <if test="record.sellPrice != null">
+        sell_price = #{record.sellPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="record.stock != null">
+        stock = #{record.stock,jdbcType=INTEGER},
+      </if>
+      <if test="record.picture != null">
+        picture = #{record.picture,jdbcType=VARCHAR},
+      </if>
+      <if test="record.discount != null">
+        discount = #{record.discount,jdbcType=INTEGER},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="record.onsale != null">
+        onSale = #{record.onsale,jdbcType=INTEGER},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update tb_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      goodsType_id = #{record.goodstypeId,jdbcType=INTEGER},
+      goodsName = #{record.goodsname,jdbcType=VARCHAR},
+      producing_area = #{record.producingArea,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      price = #{record.price,jdbcType=DECIMAL},
+      sell_price = #{record.sellPrice,jdbcType=DECIMAL},
+      stock = #{record.stock,jdbcType=INTEGER},
+      picture = #{record.picture,jdbcType=VARCHAR},
+      discount = #{record.discount,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      onSale = #{record.onsale,jdbcType=INTEGER},
+      description = #{record.description,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_goods
+    set id = #{record.id,jdbcType=INTEGER},
+      goodsType_id = #{record.goodstypeId,jdbcType=INTEGER},
+      goodsName = #{record.goodsname,jdbcType=VARCHAR},
+      producing_area = #{record.producingArea,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=TIMESTAMP},
+      price = #{record.price,jdbcType=DECIMAL},
+      sell_price = #{record.sellPrice,jdbcType=DECIMAL},
+      stock = #{record.stock,jdbcType=INTEGER},
+      picture = #{record.picture,jdbcType=VARCHAR},
+      discount = #{record.discount,jdbcType=INTEGER},
+      update_time = #{record.updateTime,jdbcType=TIMESTAMP},
+      onSale = #{record.onsale,jdbcType=INTEGER}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.susu.entity.Goods">
+    update tb_goods
+    <set>
+      <if test="goodstypeId != null">
+        goodsType_id = #{goodstypeId,jdbcType=INTEGER},
+      </if>
+      <if test="goodsname != null">
+        goodsName = #{goodsname,jdbcType=VARCHAR},
+      </if>
+      <if test="producingArea != null">
+        producing_area = #{producingArea,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="price != null">
+        price = #{price,jdbcType=DECIMAL},
+      </if>
+      <if test="sellPrice != null">
+        sell_price = #{sellPrice,jdbcType=DECIMAL},
+      </if>
+      <if test="stock != null">
+        stock = #{stock,jdbcType=INTEGER},
+      </if>
+      <if test="picture != null">
+        picture = #{picture,jdbcType=VARCHAR},
+      </if>
+      <if test="discount != null">
+        discount = #{discount,jdbcType=INTEGER},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="onsale != null">
+        onSale = #{onsale,jdbcType=INTEGER},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.susu.entity.Goods">
+    update tb_goods
+    set goodsType_id = #{goodstypeId,jdbcType=INTEGER},
+      goodsName = #{goodsname,jdbcType=VARCHAR},
+      producing_area = #{producingArea,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      price = #{price,jdbcType=DECIMAL},
+      sell_price = #{sellPrice,jdbcType=DECIMAL},
+      stock = #{stock,jdbcType=INTEGER},
+      picture = #{picture,jdbcType=VARCHAR},
+      discount = #{discount,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      onSale = #{onsale,jdbcType=INTEGER},
+      description = #{description,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.susu.entity.Goods">
+    update tb_goods
+    set goodsType_id = #{goodstypeId,jdbcType=INTEGER},
+      goodsName = #{goodsname,jdbcType=VARCHAR},
+      producing_area = #{producingArea,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      price = #{price,jdbcType=DECIMAL},
+      sell_price = #{sellPrice,jdbcType=DECIMAL},
+      stock = #{stock,jdbcType=INTEGER},
+      picture = #{picture,jdbcType=VARCHAR},
+      discount = #{discount,jdbcType=INTEGER},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      onSale = #{onsale,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

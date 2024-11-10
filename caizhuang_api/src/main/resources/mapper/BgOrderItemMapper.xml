@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.BgOrderItemMapper">
+  <resultMap id="BaseResultMap" type="com.susu.entity.BgOrderItem">
+    <id column="item_id" jdbcType="INTEGER" property="itemId" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="order_goods_id" jdbcType="INTEGER" property="orderGoodsId" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="goodsBuyPrice" jdbcType="DECIMAL" property="goodsbuyprice" />
+    <result column="size" jdbcType="VARCHAR" property="size" />
+    <result column="status" jdbcType="CHAR" property="status" />
+  </resultMap>
+
+  <!--  关联查询-->
+  <resultMap id="WithGoodsResultMap" type="com.susu.entity.BgOrderItem">
+    <id column="item_id" jdbcType="INTEGER" property="itemId" />
+    <result column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="order_goods_id" jdbcType="INTEGER" property="orderGoodsId" />
+    <result column="quantity" jdbcType="INTEGER" property="quantity" />
+    <result column="goodsBuyPrice" jdbcType="DECIMAL" property="goodsbuyprice" />
+    <result column="size" jdbcType="VARCHAR" property="size" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <!-- 关联对象 -->
+    <association property="goods" javaType="com.susu.entity.Goods">
+      <id column="id" jdbcType="INTEGER" property="id" />
+      <result column="picture" jdbcType="VARCHAR" property="picture" />
+      <result column="description" jdbcType="LONGVARCHAR" property="description" />
+    </association>
+  </resultMap>
+
+
+  <sql id="Base_Column_List">
+    item_id, order_id, order_goods_id, quantity, goodsBuyPrice, size, status
+  </sql>
+  <sql id="WithGoods_List">
+    item_id, order_id, order_goods_id,quantity,goodsBuyPrice,o.size,status,g.picture,g.description
+  </sql>
+ <!--  toOrderItem   生成后台订单明细-->
+  <insert id="toOrderItem" parameterType="java.util.List">
+    insert into tb_bg_orderitem (order_id,order_goods_id,quantity,goodsBuyPrice,size)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{orderId,jdbcType=VARCHAR}, #{item.orderGoodsId,jdbcType=INTEGER},
+      #{item.quantity,jdbcType=INTEGER}, #{item.goodsbuyprice,jdbcType=DECIMAL},#{item.size,jdbcType=VARCHAR})
+    </foreach>
+  </insert>
+
+<!--  getOrderItem  查看订单明细-->
+  <select id="getOrderItem" parameterType="java.lang.String" resultMap="WithGoodsResultMap">
+    select
+    <include refid="WithGoods_List" />
+    FROM tb_bg_orderitem o LEFT JOIN tb_goods g ON o.order_goods_id=g.id
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </select>
+
+
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from tb_bg_orderitem
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_bg_orderitem
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.susu.entity.BgOrderItem">
+    insert into tb_bg_orderitem (item_id, order_id, order_goods_id, 
+      quantity, goodsBuyPrice, size, 
+      status)
+    values (#{itemId,jdbcType=INTEGER}, #{orderId,jdbcType=VARCHAR}, #{orderGoodsId,jdbcType=INTEGER}, 
+      #{quantity,jdbcType=INTEGER}, #{goodsbuyprice,jdbcType=DECIMAL}, #{size,jdbcType=VARCHAR}, 
+      #{status,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.susu.entity.BgOrderItem">
+    insert into tb_bg_orderitem
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="itemId != null">
+        item_id,
+      </if>
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="orderGoodsId != null">
+        order_goods_id,
+      </if>
+      <if test="quantity != null">
+        quantity,
+      </if>
+      <if test="goodsbuyprice != null">
+        goodsBuyPrice,
+      </if>
+      <if test="size != null">
+        size,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="itemId != null">
+        #{itemId,jdbcType=INTEGER},
+      </if>
+      <if test="orderId != null">
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderGoodsId != null">
+        #{orderGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="quantity != null">
+        #{quantity,jdbcType=INTEGER},
+      </if>
+      <if test="goodsbuyprice != null">
+        #{goodsbuyprice,jdbcType=DECIMAL},
+      </if>
+      <if test="size != null">
+        #{size,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.susu.entity.BgOrderItem">
+    update tb_bg_orderitem
+    <set>
+      <if test="orderId != null">
+        order_id = #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="orderGoodsId != null">
+        order_goods_id = #{orderGoodsId,jdbcType=INTEGER},
+      </if>
+      <if test="quantity != null">
+        quantity = #{quantity,jdbcType=INTEGER},
+      </if>
+      <if test="goodsbuyprice != null">
+        goodsBuyPrice = #{goodsbuyprice,jdbcType=DECIMAL},
+      </if>
+      <if test="size != null">
+        size = #{size,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.susu.entity.BgOrderItem">
+    update tb_bg_orderitem
+    set order_id = #{orderId,jdbcType=VARCHAR},
+      order_goods_id = #{orderGoodsId,jdbcType=INTEGER},
+      quantity = #{quantity,jdbcType=INTEGER},
+      goodsBuyPrice = #{goodsbuyprice,jdbcType=DECIMAL},
+      size = #{size,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR}
+    where item_id = #{itemId,jdbcType=INTEGER}
+  </update>
+</mapper>

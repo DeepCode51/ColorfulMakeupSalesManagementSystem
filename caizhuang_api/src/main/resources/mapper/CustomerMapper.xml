@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.CustomerMapper">
+  <resultMap id="BaseResultMap" type="com.susu.entity.Customer">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="real_name" jdbcType="VARCHAR" property="realName" />
+    <result column="mobile" jdbcType="VARCHAR" property="mobile" />
+    <result column="password_question" jdbcType="VARCHAR" property="passwordQuestion" />
+    <result column="password_hint_answer" jdbcType="VARCHAR" property="passwordHintAnswer" />
+    <result column="img" jdbcType="VARCHAR" property="img" />
+    <result column="gender" jdbcType="INTEGER" property="gender" />
+    <result column="token" jdbcType="VARCHAR" property="token" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, user_name, password, real_name, mobile, password_question, password_hint_answer,img,gender,create_time
+  </sql>
+
+  <select id="getUser"  resultMap="BaseResultMap">
+    SELECT * FROM tb_customer where user_name =#{userName} and password=#{password}
+  </select>
+
+  <!--生成token-->
+  <update id="insertToken" parameterType="com.susu.entity.Customer">
+    update tb_customer
+    set token = #{token,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <!--生成token-->
+
+<!--updateInfo-->
+  <update id="updateInfo" parameterType="com.susu.entity.User">
+    update tb_customer
+    set
+      real_name = #{realName,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=INTEGER},
+      password_question=#{passwordQuestion,jdbcType=VARCHAR},
+      password_hint_answer=#{passwordHintAnswer,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="updatePswQuestion" parameterType="java.lang.String">
+    update tb_customer
+    set password_question=#{passwordQuestion,jdbcType=VARCHAR}
+    where user_name =#{userName,jdbcType=VARCHAR}
+  </update>
+
+<!--setMiQues  设置密保-->
+  <update id="setMiQues" parameterType="com.susu.entity.User">
+    update tb_customer
+    set
+      password_question=#{passwordQuestion,jdbcType=VARCHAR},
+      password_hint_answer=#{passwordHintAnswer,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+  <!--updateImg-->
+  <update id="updateImg" parameterType="com.susu.entity.Customer">
+    update tb_customer
+    set img = #{img,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+
+<!--getPsw-->
+  <select id="getPsw" resultType="String">
+    SELECT password FROM tb_customer where id = #{id,jdbcType=INTEGER}
+  </select>
+
+
+<!--updatePsw-->
+  <update id="updatePsw" parameterType="com.susu.entity.User">
+    update tb_customer
+    set
+      password = #{password,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <!--insertUser-->
+  <insert id="insertUser" parameterType="com.susu.entity.Customer">
+    insert into tb_customer (user_name, password,
+                             real_name, mobile, password_question,
+                             password_hint_answer,create_time)
+    values (#{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+            #{realName,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR},'1',
+            #{passwordHintAnswer,jdbcType=VARCHAR},#{createTime,jdbcType=TIMESTAMP})
+  </insert>
+
+
+  <!--count-->
+  <select id="count"  resultType="int">
+    SELECT COUNT(user_name)
+    FROM tb_customer WHERE user_name=#{userName}
+  </select>
+
+
+<!--  getAlluser-->
+  <select id="getAlluser"  resultMap="BaseResultMap">
+    SELECT * FROM tb_customer
+  </select>
+
+
+  <select id="selectByExample" parameterType="com.susu.entity.CustomerExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from tb_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_customer
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from tb_customer
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.susu.entity.CustomerExample">
+    delete from tb_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.susu.entity.Customer">
+    insert into tb_customer (id, user_name, password,
+      real_name, mobile, password_question,
+      password_hint_answer)
+    values (#{id,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+      #{realName,jdbcType=VARCHAR}, #{mobile,jdbcType=VARCHAR}, #{passwordQuestion,jdbcType=VARCHAR},
+      #{passwordHintAnswer,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.susu.entity.Customer">
+    insert into tb_customer
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="userName != null">
+        user_name,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="realName != null">
+        real_name,
+      </if>
+      <if test="mobile != null">
+        mobile,
+      </if>
+      <if test="passwordQuestion != null">
+        password_question,
+      </if>
+      <if test="passwordHintAnswer != null">
+        password_hint_answer,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordQuestion != null">
+        #{passwordQuestion,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordHintAnswer != null">
+        #{passwordHintAnswer,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.susu.entity.CustomerExample" resultType="java.lang.Long">
+    select count(*) from tb_customer
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update tb_customer
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=INTEGER},
+      </if>
+      <if test="record.userName != null">
+        user_name = #{record.userName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.password != null">
+        password = #{record.password,jdbcType=VARCHAR},
+      </if>
+      <if test="record.realName != null">
+        real_name = #{record.realName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.mobile != null">
+        mobile = #{record.mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="record.passwordQuestion != null">
+        password_question = #{record.passwordQuestion,jdbcType=VARCHAR},
+      </if>
+      <if test="record.passwordHintAnswer != null">
+        password_hint_answer = #{record.passwordHintAnswer,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update tb_customer
+    set id = #{record.id,jdbcType=INTEGER},
+      user_name = #{record.userName,jdbcType=VARCHAR},
+      password = #{record.password,jdbcType=VARCHAR},
+      real_name = #{record.realName,jdbcType=VARCHAR},
+      mobile = #{record.mobile,jdbcType=VARCHAR},
+      password_question = #{record.passwordQuestion,jdbcType=VARCHAR},
+      password_hint_answer = #{record.passwordHintAnswer,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.susu.entity.Customer">
+    update tb_customer
+    <set>
+      <if test="userName != null">
+        user_name = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="realName != null">
+        real_name = #{realName,jdbcType=VARCHAR},
+      </if>
+      <if test="mobile != null">
+        mobile = #{mobile,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordQuestion != null">
+        password_question = #{passwordQuestion,jdbcType=VARCHAR},
+      </if>
+      <if test="passwordHintAnswer != null">
+        password_hint_answer = #{passwordHintAnswer,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.susu.entity.Customer">
+    update tb_customer
+    set user_name = #{userName,jdbcType=VARCHAR},
+      password = #{password,jdbcType=VARCHAR},
+      real_name = #{realName,jdbcType=VARCHAR},
+      mobile = #{mobile,jdbcType=VARCHAR},
+      password_question = #{passwordQuestion,jdbcType=VARCHAR},
+      password_hint_answer = #{passwordHintAnswer,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>

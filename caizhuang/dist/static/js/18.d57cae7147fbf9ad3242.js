@@ -1,0 +1,2 @@
+webpackJsonp([18],{CnTa:function(t,e){},WdOW:function(t,e,n){"use strict";Object.defineProperty(e,"__esModule",{value:!0});var s={render:function(){var t=this.$createElement,e=this._self._c||t;return e("div",{staticClass:"container1"},[e("router-link",{attrs:{to:"/login"}},[e("Button",{staticClass:"btn-success",attrs:{type:"success",size:"large",long:""}},[this._v("注册成功")])],1)],1)},staticRenderFns:[]};var a=n("VU/8")({name:"SignUpDone"},s,!1,function(t){n("CnTa")},"data-v-76282d6c",null);e.default=a.exports}});
+//# sourceMappingURL=18.d57cae7147fbf9ad3242.js.map

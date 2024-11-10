@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.susu.dao.BgOrderMapper">
+  <resultMap id="BaseResultMap" type="com.susu.entity.BgOrder">
+    <id column="order_id" jdbcType="VARCHAR" property="orderId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="address" jdbcType="VARCHAR" property="address" />
+    <result column="totalPrice" jdbcType="REAL" property="totalprice" />
+    <result column="deliveryMethod" jdbcType="VARCHAR" property="deliverymethod" />
+    <result column="memo" jdbcType="VARCHAR" property="memo" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="payMethod" jdbcType="VARCHAR" property="paymethod" />
+    <result column="status" jdbcType="CHAR" property="status" />
+    <result column="postcode" jdbcType="VARCHAR" property="postcode" />
+    <result column="rece_phone" jdbcType="VARCHAR" property="recePhone" />
+    <result column="rece_name" jdbcType="VARCHAR" property="receName" />
+  </resultMap>
+
+  <resultMap id="TimeResultMap" type="com.susu.entity.BgOrder">
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="totalNum" jdbcType="INTEGER" property="totalNum" />
+    <result column="sumPrice" jdbcType="REAL" property="sumPrice" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    order_id, user_id, address, totalPrice, deliveryMethod, memo, create_time, payMethod,
+    status,postcode,rece_phone,rece_name
+  </sql>
+  <!--  插入后台订单-->
+  <insert id="insert" parameterType="com.susu.entity.BgOrder">
+    insert into tb_bg_order (order_id, user_id, address,
+                             totalPrice, deliveryMethod, memo,
+                             create_time, payMethod, status,postcode,rece_phone,rece_name)
+    values (#{orderId,jdbcType=VARCHAR}, #{userId,jdbcType=INTEGER}, #{address,jdbcType=INTEGER},
+            #{totalprice,jdbcType=REAL}, #{deliverymethod,jdbcType=VARCHAR}, #{memo,jdbcType=VARCHAR},
+            #{createTime,jdbcType=TIMESTAMP}, #{paymethod,jdbcType=VARCHAR}, #{status,jdbcType=CHAR},
+            #{postcode,jdbcType=VARCHAR},#{recePhone,jdbcType=VARCHAR},#{receName,jdbcType=VARCHAR})
+  </insert>
+
+  <!--  showOrder  查看订单 ，条件查询 订单编号 以及订单的状态，分页-->
+  <select id="showOrder" resultMap="BaseResultMap">
+    select *
+    from tb_bg_order orders,tb_bg_orderitem item,tb_goods goods
+    where 1=1 and orders.order_id=item.order_id and item.order_goods_id=goods.id
+    <if test="orderId  !=null and orderId  !='  ' ">
+      and order_id =#{orderId}
+    </if>
+    <if test="status  !=null and status  !='  ' ">
+      and status = #{status}
+    </if>
+    <if test="goodstypeId  !=null and goodstypeId  !='  ' ">
+      and goods.goodsType_id = #{goodstypeId}
+    </if>
+    order by orders.create_time desc
+  </select>
+
+ <!--  getOrderDetail    更加订单id查看订单详情-->
+  <select id="getOrderDetail" parameterType="com.susu.entity.BgOrder" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_bg_order
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </select>
+  <!--  updateStatus   根据订单id来更新订单的状态-->
+  <update id="updateStatus" parameterType="com.susu.entity.BgOrder">
+    update tb_bg_order
+    set status = #{status,jdbcType=CHAR}
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </update>
+
+
+ <!--  timeOrder  -->
+  <select id="timeOrder"  resultMap="TimeResultMap">
+    SELECT create_time ,COUNT(create_time) AS  totalNum, SUM(totalPrice) AS sumPrice FROM tb_bg_order
+    WHERE create_time BETWEEN #{startTime} AND #{endTime}
+    GROUP BY DATE_FORMAT(create_time,'%Y-%m-%d')
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from tb_bg_order
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </select>
+
+  <delete id="deleteBgOrderByPrimaryKey" parameterType="java.lang.String">
+    delete from tb_bg_order
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </delete>
+
+  <insert id="insertSelective" parameterType="com.susu.entity.BgOrder">
+    insert into tb_bg_order
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="orderId != null">
+        order_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="address != null">
+        address,
+      </if>
+      <if test="totalprice != null">
+        totalPrice,
+      </if>
+      <if test="deliverymethod != null">
+        deliveryMethod,
+      </if>
+      <if test="memo != null">
+        memo,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="paymethod != null">
+        payMethod,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="orderId != null">
+        #{orderId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="address != null">
+        #{address,jdbcType=INTEGER},
+      </if>
+      <if test="totalprice != null">
+        #{totalprice,jdbcType=REAL},
+      </if>
+      <if test="deliverymethod != null">
+        #{deliverymethod,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="paymethod != null">
+        #{paymethod,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.susu.entity.BgOrder">
+    update tb_bg_order
+    <set>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="address != null">
+        address = #{address,jdbcType=INTEGER},
+      </if>
+      <if test="totalprice != null">
+        totalPrice = #{totalprice,jdbcType=REAL},
+      </if>
+      <if test="deliverymethod != null">
+        deliveryMethod = #{deliverymethod,jdbcType=VARCHAR},
+      </if>
+      <if test="memo != null">
+        memo = #{memo,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="paymethod != null">
+        payMethod = #{paymethod,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+    </set>
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.susu.entity.BgOrder">
+    update tb_bg_order
+    set user_id = #{userId,jdbcType=INTEGER},
+      address = #{address,jdbcType=INTEGER},
+      totalPrice = #{totalprice,jdbcType=REAL},
+      deliveryMethod = #{deliverymethod,jdbcType=VARCHAR},
+      memo = #{memo,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      payMethod = #{paymethod,jdbcType=VARCHAR},
+      status = #{status,jdbcType=CHAR}
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </update>
+</mapper>
